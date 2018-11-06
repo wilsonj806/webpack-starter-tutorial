@@ -6,10 +6,13 @@
 - [Notes](#notes)
   - [Getting started](##getting-started)
   - [webpack-dev-server](##webpack-dev-server)
+    - [WDS integration](###wds-integration)
+    - [Additional Functionality](###additional-functionality)
 
 ## References:
 - [Surviving JS](https://survivejs.com/webpack/developing/getting-started/)
 - [Webpack Docs](https://webpack.js.org/guides/getting-started/)
+- [Webpack npm page](https://www.npmjs.com/package/webpack)
 
 ## Notes
 
@@ -86,6 +89,8 @@
 [Back to top](#table-of-contents)
 
 ### webpack-dev-server
+
+[Reference used](https://survivejs.com/webpack/developing/webpack-dev-server/)
 
 #### Webpack watch and WDS
 
@@ -189,5 +194,111 @@ module.exports = {
   ```
 - If you want even better output, consider `error-overlay-webpack-plugin` as it shows the origin of the error better.
   - **NOTE: WDS overlay does not capture runtime errors of the application.**
+
+#### Accessing the dev server from network
+
+- It's possible to customize host and port settings through the environment in the setup (i.e., export PORT=3000 on Unix or SET PORT=3000 on Windows)
+- The default settings are enough on most platforms.
+- To access your server, you need to figure out the ip of your machine
+  - On Unix, this can be achieved using `ifconfig | grep inet`
+  - On Windows, `ipconfig` can be utilized
+  - An npm package, such as `node-ip` come in handy as well. Especially on Windows, you need to set your HOST to match your ip to make it accessible.
+
+#### Speedier development configuration
+
+- WDS handles server updates when it detects updates in a bundled file, but it doesn't actually detect when the webpack config file is updated
+- This can be automated using `nodemon`
+  - `npm install nodemon --save-dev`
+- Below is the package.json to enable it
+
+```JSON
+{
+  //...
+  "scripts": {
+  "start": "nodemon --watch webpack.config.js --exec \"webpack-dev-server --mode development\"", // this is the new one
+  "build": "webpack --mode production"
+},
+}
+```
+#### Polling
+- Sometimes the file watching setup provided by WDS won't work on your system
+  - e.g on older versions of Windows, Ubuntu, Vagrant, and Docker
+- **NOTE THAT THIS IS MORE RESOURCE INTENSIVE**
+- To enable polling, use the below:
+```JS
+  const path = require("path");
+  const webpack = require("webpack");
+
+  module.exports = {
+    devServer: {
+      watchOptions: {
+        // Delay the rebuild after the first change
+        aggregateTimeout: 300,
+
+        // Poll using interval (in ms, accepts boolean too)
+        poll: 1000,
+      },
+    },
+    plugins: [
+      // Ignore node_modules so CPU usage with poll
+      // watching drops significantly.
+      new webpack.WatchIgnorePlugin([
+        path.join(__dirname, "node_modules")
+      ]),
+    ],
+  };
+```
+
+#### Additional functionality
+
+- WDS also provides several other config options that may be helpful
+- `devServer.contentBase`
+  - if you don't want to generate `index.html` and want to keep it in a specific directory, you'll need to point WDS to it
+  - the `contentBase` option accepts a path (e.g., "build") or an array of paths (e.g., ["build", "images"])
+  - the default value is the project root
+- `devServer.proxy`
+  - if you are using multiple servers, you'll need to proxy WDS to them
+  - the setting accepts an object of proxy mappings that resolves matching queries to another server
+  - it's formatted like the below:
+  ```json
+  {
+     "/api": "http://localhost:3000/api"
+  }
+  ```
+  - disabled by default
+- `devServer.headers` - Attach custom headers to your requests here.
+
+- More options can be found in the [official documentation](https://webpack.js.org/configuration/dev-server/)
+
+#### Development plugins
+
+**NOTE THAT THIS SECTION AND THE BELOW SECTION AREN'T NECESSARILY REQUIRED. IT DEPENDS ON YOUR PROJECT AND SHOULD BE SELECTED DEPENDING ON WHAT YOU NEED**
+
+The webpack plugin ecosystem is diverse, and there are a lot of plugins that can help specifically with development
+
+- `case-sensitive-paths-webpack-plugin` can be handy when you are developing on case-insensitive environments like macOS or Windows but using case-sensitive environment like Linux for production
+- `npm-install-webpack-plugin` allows webpack to install and wire the installed packages with your package.json as you import new packages to your project.
+- `react-dev-utils` contains webpack utilities developed for Create React App
+  - Despite its name, they can find use beyond React. If you want only webpack message formatting, consider `webpack-format-messages`.
+- `start-server-webpack-plugin` is able to start your server after webpack build completes.
+
+#### Output plugins
+
+There are also plugins that make the webpack output easier to notice and understand:
+
+- `system-bell-webpack-plugin` rings the system bell on failure instead of letting webpack fail silently.
+- `webpack-notifier` uses system notifications to let you know of webpack status.
+- `nyan-progress-webpack-plugin` can be used to get tidier output during the build process
+  - Take care if you are using Continuous Integration (CI) systems like Travis as they can clobber the output
+  - Webpack provides `ProgressPlugin` for the same purpose. No nyan there, though.
+- `friendly-errors-webpack-plugin` improves on error reporting of webpack. It captures common errors and displays them in a friendlier manner.
+- `webpack-dashboard` gives an entire terminal based dashboard over the standard webpack output. If you prefer clear visual output, this one comes in handy.
+
+
+[Back to top](#table-of-contents)
+
+### Composing Configuration
+
+[Reference used](https://survivejs.com/webpack/developing/composing-configuration/)
 
 [Back to top](#table-of-contents)
