@@ -4,10 +4,10 @@
 
 - [References](#references)
 - [Notes](#notes)
-  - [Getting started](##getting-started)
-  - [webpack-dev-server](##webpack-dev-server)
-    - [WDS integration](###wds-integration)
-    - [Additional Functionality](###additional-functionality)
+  - [Getting started](#getting-started)
+  - [webpack-dev-server](#webpack-dev-server)
+    - [WDS integration](##wds-integration)
+    - [Additional Functionality](##additional-functionality)
 
 ## References:
 - [Surviving JS](https://survivejs.com/webpack/developing/getting-started/)
