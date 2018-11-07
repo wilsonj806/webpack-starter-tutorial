@@ -8,8 +8,11 @@
   - [webpack-dev-server](#webpack-dev-server)
     - [WDS integration](##wds-integration)
     - [Additional Functionality](##additional-functionality)
+  - [Composing config](#composing-configuration)
 
 ## References:
+
+- [Webpack Configuration Docs](https://webpack.js.org/configuration/)
 - [Surviving JS](https://survivejs.com/webpack/developing/getting-started/)
 - [Webpack Docs](https://webpack.js.org/guides/getting-started/)
 - [Webpack npm page](https://www.npmjs.com/package/webpack)
@@ -19,6 +22,31 @@
 ### Getting started
 
 [Reference used](https://survivejs.com/webpack/developing/getting-started/)
+
+#### Setting up assets
+
+So if you check the `src` folder you'll see that we've started a small app. However, we're unable to currently test the application in the browser since there's no  HTML file that points to the bundled files.
+
+This is where `html-webpack-plugin` comes in.
+
+- `html-webpack-plugin` can be installed via: `npm i html-webpack-plugin -D`
+- To hook up HWP use the following:
+  ```js
+  const HtmlWebpackPlugin = require("html-webpack-plugin"); // import the plugin
+
+  module.exports = {
+    //...
+    plugins: [ // array with a list of plugins you want to use
+      new HtmlWebpackPlugin({ // initiate an instance of HWP
+        title: "Webpack demo", // adds the title field to the index.html file that's to be generated
+      }),
+    ],
+  };
+  ```
+- Once you configure it, you can use `npm run build` to bundle everything up and check out the generated index.html file
+- In addition you can start a server using `serve` or `webpack-dev-server`
+
+#### Webpack output
 
 - When we use `node_modules/.bin/webpack --mode production` we get the following back:
   ```PowerShell
@@ -68,12 +96,10 @@
   - within `package.json` add:
   ```JSON
   {
-    //...
+    "...more above",
     "scripts": {
-    //...
     "build": "webpack --mode production"
   }
-  // ...
   }
   ```
   - lets us use `npm run build` instead since npm automatically adds `./node_modules/.bin/` in
@@ -121,26 +147,25 @@
 - Then integrating it into your *package.json* file using convention:
   ```JSON
   {
-    //...
+    "...more above",
     "scripts":{
-      //...
       "start": "webpack-dev-server --mode development",
       "build": "webpack --mode production"
     }
   }
   ```
 - You should get the below output
-```PowerShell
-i ｢wds｣: Project is running at http://localhost:8080/
-i ｢wds｣: webpack output is served from /
-i ｢wdm｣: Hash: f8bf3d96fd5afd834f79
-Version: webpack 4.25.1
-Time: 778ms
-Built at: 11/05/2018 8:09:45 PM
-     Asset       Size  Chunks             Chunk Names
-   index.html  181 bytes          [emitted]
-   main.js    343 KiB    main  [emitted]  main
-```
+  ```PowerShell
+  i ｢wds｣: Project is running at http://localhost:8080/
+  i ｢wds｣: webpack output is served from /
+  i ｢wdm｣: Hash: f8bf3d96fd5afd834f79
+  Version: webpack 4.25.1
+  Time: 778ms
+  Built at: 11/05/2018 8:09:45 PM
+      Asset       Size  Chunks             Chunk Names
+    index.html  181 bytes          [emitted]
+    main.js    343 KiB    main  [emitted]  main
+  ```
 WDS tries to run in another port in case the default one is being used. The terminal output tells you where it ends up running. You can debug the situation with a command like netstat -na | grep 8080. If something is running on the port 8080, it should display a message on Unix.
 
 In addition to production and development, there's a third mode, none, which disables everything and is close to the behavior you had in versions before webpack 4.
@@ -148,31 +173,31 @@ In addition to production and development, there's a third mode, none, which dis
 #### WDS configuration
 
 - WDS functionality can be customized through the devServer field in the webpack configuration
-  - You can set most of these options through the CLI as well, but managing them through webpack is fairly straightforwards
-```JS
-...
-
-module.exports = {
-
-  devServer: {
-    // Display only errors to reduce the amount of output.
-    stats: "errors-only",
-
-    // Parse host and port from env to allow customization.
-    //
-    // If you use Docker, Vagrant or Cloud9, set
-    // host: options.host || "0.0.0.0";
-    //
-    // 0.0.0.0 is available to all network devices
-    // unlike default `localhost`.
-    host: process.env.HOST, // Defaults to `localhost`
-    port: process.env.PORT, // Defaults to 8080
-    open: true, // Open the page in browser
-  },
-
+  - you can set most of these options through the CLI as well, but managing them through webpack is fairly straightforwards
+  ```JS
   ...
-};
-```
+
+  module.exports = {
+
+    devServer: {
+      // Display only errors to reduce the amount of output.
+      stats: "errors-only",
+
+      // Parse host and port from env to allow customization.
+      //
+      // If you use Docker, Vagrant or Cloud9, set
+      // host: options.host || "0.0.0.0";
+      //
+      // 0.0.0.0 is available to all network devices
+      // unlike default `localhost`.
+      host: process.env.HOST, // Defaults to `localhost`
+      port: process.env.PORT, // Defaults to 8080
+      open: true, // Open the page in browser
+    },
+
+    ...
+  };
+  ```
 
 - After this change, you can configure the server host and port options through environment parameters
   - example: `PORT=3000 npm start` (this is for Node???)
@@ -200,9 +225,9 @@ module.exports = {
 - It's possible to customize host and port settings through the environment in the setup (i.e., export PORT=3000 on Unix or SET PORT=3000 on Windows)
 - The default settings are enough on most platforms.
 - To access your server, you need to figure out the ip of your machine
-  - On Unix, this can be achieved using `ifconfig | grep inet`
-  - On Windows, `ipconfig` can be utilized
-  - An npm package, such as `node-ip` come in handy as well. Especially on Windows, you need to set your HOST to match your ip to make it accessible.
+  - on Unix, this can be achieved using `ifconfig | grep inet`
+  - on Windows, `ipconfig` can be utilized
+  - an npm package, such as `node-ip` come in handy as well. Especially on Windows, you need to set your HOST to match your ip to make it accessible.
 
 #### Speedier development configuration
 
@@ -211,15 +236,15 @@ module.exports = {
   - `npm install nodemon --save-dev`
 - Below is the package.json to enable it
 
-```JSON
-{
-  //...
-  "scripts": {
-  "start": "nodemon --watch webpack.config.js --exec \"webpack-dev-server --mode development\"", // this is the new one
-  "build": "webpack --mode production"
-},
-}
-```
+  ```JSON
+  {
+    "...more above",
+    "scripts": {
+    "start": "nodemon --watch webpack.config.js --exec \"webpack-dev-server --mode development\"", // this is the new one
+    "build": "webpack --mode production"
+  },
+  }
+  ```
 #### Polling
 - Sometimes the file watching setup provided by WDS won't work on your system
   - e.g on older versions of Windows, Ubuntu, Vagrant, and Docker
@@ -300,5 +325,135 @@ There are also plugins that make the webpack output easier to notice and underst
 ### Composing Configuration
 
 [Reference used](https://survivejs.com/webpack/developing/composing-configuration/)
+
+So as a review, we can do a pretty decent amount of stuff now. But at some point we'll need to figure out how to compose our config since we'll have different ones for both development and production. A single config isn't recommended since it makes readability difficult.
+
+- Here's our options:
+  - maintain configuration within multiple files for each environment and point webpack to each through the `--config` parameter, sharing configuration through module imports.
+  - push configuration to a library, which you then consume
+    - Examples: hjs-webpack, Neutrino, webpack-blocks.
+  - push configuration to a tool. Examples: create-react-app, kyt, nwb.
+  - maintain all configuration within a single file and branch there and rely on the `--env` parameter. The approach is explained in detail later in this chapter.
+
+#### Config by merge
+
+- If we're breaking our config into separate pieces, they'll need to be combined again
+- This means using `Object.assign` and `Array.concat` by default, which isn't great
+- To bypass this, `webpack-merge` was developed
+- Webpack-merge does two things:
+  1. concatenates arrays
+  2. merges objects
+  - in addition webpack-merge does this in a way that avoids overriding them so that composition is allowed like in the below example:
+  ```js
+  > merge = require("webpack-merge")
+  ...
+  > merge(
+  ... { a: [1], b: 5, c: 20 },
+  ... { a: [2], b: 10, d: 421 }
+  ... )
+  { a: [ 1, 2 ], b: 10, c: 20, d: 421 }
+  ```
+- Beyond that, `webpack-merge` allows for finer control via strategies that allow you to control its behavior per field
+  - i.e append, prepend, or replace content
+  - there's also [webpack-chain](https://www.npmjs.com/package/webpack-chain) which provides a fluent API for configuring webpack allowing you to avoid configuration shape-related problems while enabling composition.
+    - `webpack-merge` was made for the purposes of this book, and technically should be replaced with `webpack-chain` at some point
+
+#### Webpack merge setup
+
+[webpack-merge docs]()
+
+To start, add `webpack-merge` to your `package.json`
+  ```
+  npm i -D webpack-merge
+  ```
+- With that we can define *webpack.config.js* for higher level configuration and *webpack.parts.js* for configuration parts to consume
+- So we'll make **webpack.parts.js** with the below contents
+  ```js
+  exports.devServer = ({ host, port } = {}) => ({
+    devServer: {
+      stats: "errors-only",
+      host, // Defaults to `localhost`
+      port, // Defaults to 8080
+      open: true,
+      overlay: true,
+    },
+  });
+  ```
+  - Also note the *stats* idea also works for production as well. More in the [documentation](https://webpack.js.org/configuration/stats/)
+- We can then use merge to import this config into *webpack.config.js* like in the below:
+  ```js
+  const merge = require("webpack-merge"); // imported webpack plugin
+  const HtmlWebpackPlugin = require("html-webpack-plugin"); // imported webpack plugin
+
+  const parts = require("./webpack.parts"); // imported CUSTOM config
+
+  const commonConfig = merge([
+    {
+      plugins: [
+        new HtmlWebpackPlugin({
+          title: "Webpack demo",
+        }),
+      ],
+    },
+  ]);
+
+  const productionConfig = merge([]);
+
+  const developmentConfig = merge([
+    parts.devServer({
+      // Customize host/port here if needed
+      host: process.env.HOST,
+      port: process.env.PORT,
+    }),
+  ]);
+
+  module.exports = mode => {
+    if (mode === "production") {
+      return merge(commonConfig, productionConfig, { mode });
+    }
+
+    return merge(commonConfig, developmentConfig, { mode });
+  };
+  ```
+- This composition doesn't actually return a direct config. Instead it returns the passed `env`
+- From the passed `env`, a configuration is returned and in addition, it maps webpack `mode` to it.
+  - see the [webpack docs page](https://webpack.js.org/configuration/configuration-types/#exporting-multiple-configurations) on it
+- As a result, we need to update our current `package.json` with the below:
+```json
+{
+  "...more above",
+  "scripts": {
+
+  "start": "webpack-dev-server --env development",
+  "build": "webpack --env production"
+
+},
+}
+```
+- Once you run the above scripts, it should behave the same ways as before
+- The difference being that we have plenty of ways to expand functionality
+- In addition we can add more targets by expanding the `package.json` definition and branching at `webpack.config.js` as needed.
+  - and subsequently `webpack.parts.js` grows to contain whatever specific techniques/ modules you need to compose the config
+  - the `process` module used in the code is exposed by *Node* as a global
+    - In addition to `env`, it provides plenty of other functionality that allows you to get more information of the host system.
+
+#### Understanding env
+
+- Even though --env allows to pass strings to the configuration, it can do a bit more. Consider the following `package.json` script:
+```json
+{
+  "...more above",
+  "scripts": {
+  "start": "webpack-dev-server --env development",
+  "build": "webpack --env.target production"
+},
+}
+```
+- Instead of a string, you should receive an object `{ target: "production" }` at configuration now
+- You could pass more key-value pairs, and they would go to the env object.
+  - If you set `--env foo` while setting `--env.target`, the string wins
+  - Webpack relies on yargs for parsing underneath.
+
+
 
 [Back to top](#table-of-contents)

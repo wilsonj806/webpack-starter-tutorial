@@ -1,5 +1,7 @@
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 
+// Single file, no merging or composition
+
 module.exports = {
   devServer: {
     // Display only errors to reduce the amount of output.
