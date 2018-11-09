@@ -1,6 +1,10 @@
 # Composing Configuration
 
-[Reference used](https://survivejs.com/webpack/developing/composing-configuration/)
+## Reference
+
+[Survive JS](https://survivejs.com/webpack/developing/composing-configuration/)
+
+## Intro
 
 So as a review, we can do a pretty decent amount of stuff now. But at some point we'll need to figure out how to compose our config since we'll have different ones for both development and production. A single config isn't recommended since it makes readability difficult.
 

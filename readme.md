@@ -4,10 +4,11 @@
 
 - [References](#references)
 - [Notes](#notes)
-  - [Getting started](#getting-started)
+  - [Getting started](#getting-started)`
   - [webpack-dev-server](docs/webpack-dev-server.md)
   - [Composing config](docs/composing-config.md)
   - [Loaders and Styling](docs/loaders-styling.md)
+  - [Separating CSS](docs/separating-css.md)
 
 ## References:
 

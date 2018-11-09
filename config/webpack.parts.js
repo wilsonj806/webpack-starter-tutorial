@@ -1,4 +1,9 @@
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const path = require('path');
+
+
 exports.devServer = ({ host, port } = {}) => ({
+
   devServer: {
     stats: "errors-only",
     host, // Defaults to `localhost`
@@ -11,6 +16,7 @@ exports.devServer = ({ host, port } = {}) => ({
 // see https://github.com/survivejs-demos/webpack-demo/blob/master/package.json
   // for more
 exports.loadCSS = ({ include, exclude } = {}) => ({
+  stats:"verbose",
   module: {
     rules: [
       {
@@ -18,8 +24,36 @@ exports.loadCSS = ({ include, exclude } = {}) => ({
         include,
         exclude,
 
-        use: ["style-loader", "css-loader"],
+        use: [
+          "style-loader",
+          {
+            loader:"css-loader",
+
+          }
+        ],
       },
     ],
   },
 });
+
+exports.extractCSS = ({ include, exclude, use = [] }) => {
+  // Output extracted CSS to a file
+  const plugin = new MiniCssExtractPlugin({
+    filename: "[name].[hash].css",
+  });
+
+  return {
+    module: {
+      rules: [
+        {
+          test: /\.css$/,
+          include,
+          exclude,
+
+          use: [MiniCssExtractPlugin.loader].concat(use),
+        },
+      ],
+    },
+    plugins: [plugin],
+  };
+};
